@@ -1,1 +1,1 @@
-a lightweight, portable, extensible, and production-ready command-line argument parsing library for C, with an intuitive API.
+General-purpose argument parsing library written entirely in C, portable, extensible, and production-ready.
