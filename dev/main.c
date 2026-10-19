@@ -23,18 +23,19 @@ void print_help(char *name){
 
 
 // parse arguments and write to *args
-int parse_args(int argc, char **argv, args_t *args){
+int parse_args(int argc, char **argv, args_t *args){      // *args used to modify the original value not the copy
     if(argc < 3){
         // missing arguments
         return 0;
     }
 
-    args->pattern = argv[1];
+    // args->pattern = argv[1];         // a shorthand for (*args).pattern
+    (*args).pattern = argv[1]; 
     args->filename = argv[2];
 
     for(int i=3; i < argc; i++){
         if(!strcmp(argv[i], "-C")){
-            args->context = atoi(argv[++i]);
+            args->context = atoi(argv[++i]);    // atoi > ASCII to integer , converts "3" to 3
         }
         else if(!strcmp(argv[i], "-n")){
             args->line_numbers = 1;
