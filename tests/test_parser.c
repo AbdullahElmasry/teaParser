@@ -1,6 +1,7 @@
 
 #include <assert.h>
 #include <teaparser.h>
+#include <stddef.h>
 
 int main(void)
 {
