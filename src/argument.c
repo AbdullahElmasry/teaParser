@@ -141,20 +141,20 @@ static char *copy_string(const char *s){
         return NULL;
     }
 
-    size_t lenght = strlen(s);
+    size_t length = strlen(s);
 
-    if(lenght == SIZE_MAX){
+    if(length == SIZE_MAX){
         return NULL;
     }
 
-    char *copy = malloc(lenght +1);
+    char *copy = malloc(length +1);
 
     // verify allocation succeeded
     if(copy == NULL){
         return NULL;
     }
 
-    memcpy(copy, s, lenght+1);
+    memcpy(copy, s, length+1);
 
     return copy;        // a pointer to allocated memory
 }
