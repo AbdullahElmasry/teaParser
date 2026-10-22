@@ -115,9 +115,48 @@ static int valid_long_name(const char *s)
 }
 */
 
-
+//============================================================
+/*
+ * str_dup - duplicate a null-terminated string on the heap
+ *
+ * Contract:
+ *   1. Accepts a valid, null-terminated C string.
+ *   2. Allocates enough memory to hold the string, including the '\0'.
+ *   3. Copies the contents into the new allocation.
+ *   4. Returns a pointer to the new allocation.
+ *   5. Returns NULL if allocation fails.
+ *
+ * NULL input is also allowed and returns NULL. Callers that treat the
+ * argument as optional (e.g. a missing alias) must therefore distinguish
+ * "no alias supplied" from "copy failed" by checking the input themselves,
+ * not by inspecting the return value alone.
+ */
 static char *copy_string(const char *s){
 
+    /* SIZE_MAX is a standard macro in C, not a variable, and it is defined in the <stdint.h> header since C99
+       it expands to the maximum value that a size_t object can hold, and its exact value depends on the platform (for example, 18446744073709551615 on a typical 64-bit system)
+    */
+
+    if(s == NULL){
+        return NULL;
+    }
+
+    size_t lenght = strlen(s);
+
+    if(lenght == SIZE_MAX){
+        return NULL;
+    }
+
+    char *copy = malloc(lenght +1);
+
+    // verify allocation succeeded
+    if(copy == NULL){
+        return NULL;
+    }
+
+    memcpy(copy, s, lenght+1);
+
+    return copy;        // a pointer to allocated memory
 }
 
 static int has_conflict(){}
