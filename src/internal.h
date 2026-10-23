@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include "teaparser.h"
 
-typedef struct {
+typedef struct {                    // represents one registered argument
     char *name;
     char *short_name;
     char *long_name;
@@ -13,11 +13,11 @@ typedef struct {
 
 
 
-struct tp_parser {
+struct tp_parser {                   // array of registered arguments
     tp_argument *argments;
     
-    size_t argument_count;
-    size_t argument_capacity;
+    size_t argument_count;           // how many arguments are currently registered
+    size_t argument_capacity;        // how many arguemtns can be registered before requiring allocating more memory
 };
 
 #endif
