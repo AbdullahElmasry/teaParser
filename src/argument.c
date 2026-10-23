@@ -159,7 +159,36 @@ static char *copy_string(const char *s){
     return copy;        // a pointer to allocated memory
 }
 
-static int has_conflict(){}
+// passing the parser containing registered arguments along side with the new argument name short name and long name to compare
+static int has_conflict(const tp_parser *parser, const char *name, const char* short_name, const char* long_name){
+    for(size_t i=0; i < parser->argument_count; ++i ){
+
+        // parser is the struct containing the argument data such as arguments, argument_count, argument_capacity
+        const tp_argument *arg = &parser->argments[i];
+        // now arg containing the argument struct data such as name, short_name, long_name
+
+        // check internal name
+        if(strcmp(arg->name , name)){
+            return 1;
+        }
+
+        // check short name
+        if(short_name != NULL && 
+           arg->short_name != NULL &&
+           (strcmp(arg->short_name, short_name) == 0 )){
+
+            return 1;
+        }
+
+        // check long name alias
+        if(long_name != NULL && 
+           arg->long_name != NULL &&
+           (strcmp(arg->long_name, long_name) == 0 )){
+            return 1;
+        }
+
+        return 0;
+}
 
 static tp_status ensure_capacity(tp_parser *parser) {}
 
