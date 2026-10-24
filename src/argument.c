@@ -164,7 +164,7 @@ static int has_conflict(const tp_parser *parser, const char *name, const char* s
     for(size_t i=0; i < parser->argument_count; ++i ){
 
         // parser is the struct containing the argument data such as arguments, argument_count, argument_capacity
-        const tp_argument *arg = &parser->argments[i];
+        const tp_argument *arg = &parser->arguments[i];
         // now arg containing the argument struct data such as name, short_name, long_name
 
         // check internal name
@@ -188,9 +188,62 @@ static int has_conflict(const tp_parser *parser, const char *name, const char* s
         }
 
         return 0;
+    }
 }
 
-static tp_status ensure_capacity(tp_parser *parser) {}
+// verify there is enough allocated space for the next argument
+static tp_status ensure_capacity(tp_parser *parser) {
+
+    /*
+        get the current size,
+        which is the argument_count from tp_parser struct
+    */
+    const size_t current_argument_count = parser->argument_count;
+    const size_t current_argument_capacity = parser->argument_capacity; 
+
+    if(current_argument_count < current_argument_capacity){
+        // do nothing
+        return TP_OK;
+    }
+
+    /*
+        * Maximum number of tp_argument elements
+        * without overflowing size_t.
+     */
+    const size_t max_elements = SIZE_MAX / sizeof(tp_argument);
+
+    /* Cannot allocate space for another argument. */
+    if (current_argument_count >= max_elements) {
+        return TP_ERROR_OUT_OF_MEMORY;
+    }
+
+    size_t new_capacity;
+    
+    if (current_argument_capacity == 0) {
+        new_capacity = max_elements < 4 ? max_elements : 4;
+    }
+    
+    /* Prevent overflow when doubling capacity. */
+    else if (current_argument_capacity > max_elements / 2) {
+        new_capacity = max_elements;
+    }
+
+    /* Normal geometric growth */
+    else {
+        new_capacity = current_argument_capacity * 2;
+    }
+
+    tp_argument *new_arguments = realloc(parser->arguments, new_capacity * sizeof(tp_argument));
+
+    if (new_arguments == NULL) {
+        return TP_ERROR_OUT_OF_MEMORY;
+    }
+
+    parser->arguments = new_arguments;
+    parser->argument_capacity = new_capacity;
+
+    return TP_OK;
+}
 
 static tp_status register_arguments(){}
 
