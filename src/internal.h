@@ -14,7 +14,7 @@ typedef struct {                    // represents one registered argument
 
 
 struct tp_parser {                   // array of registered arguments
-    tp_argument *argments;
+    tp_argument *arguments;
     
     size_t argument_count;           // how many arguments are currently registered
     size_t argument_capacity;        // how many arguemtns can be registered before requiring allocating more memory
