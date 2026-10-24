@@ -19,7 +19,7 @@ typedef enum {
     TP_OK = 0,
     TP_ERROR_INVALID_ARGUMENT,
     TP_ERROR_DUPLICATE_ARGUMENT,
-    TP_ERROR_OUT_OF_MEMEORY
+    TP_ERROR_OUT_OF_MEMORY
 } tp_status;
 
 
