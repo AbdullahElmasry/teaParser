@@ -169,7 +169,7 @@ static int has_conflict(const tp_parser *parser, const char *name, const char* s
 
         // check internal name
         if(strcmp(arg->name , name)){
-            return 1;
+            return 0;    // conflict found
         }
 
         // check short name
@@ -177,17 +177,17 @@ static int has_conflict(const tp_parser *parser, const char *name, const char* s
            arg->short_name != NULL &&
            (strcmp(arg->short_name, short_name) == 0 )){
 
-            return 1;
+            return 0;     // conflict found
         }
 
         // check long name alias
         if(long_name != NULL && 
            arg->long_name != NULL &&
            (strcmp(arg->long_name, long_name) == 0 )){
-            return 1;
+            return 0;     // conflict found
         }
 
-        return 0;
+        return 1;       // no conflict return true
     }
 }
 
@@ -245,7 +245,95 @@ static tp_status ensure_capacity(tp_parser *parser) {
     return TP_OK;
 }
 
-static tp_status register_arguments(){}
+
+static tp_status register_arguments(
+    tp_parser *parser,
+    const char *name,
+    const char *short_name,
+    const char *long_name,
+    tp_arg_kind kind
+)
+{
+    // Validate the identifier 
+    if (parser == NULL || !valid_identifier(name)) {
+        return TP_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (kind == TP_ARG_POSITIONAL) {
+
+        /* Positional arguments cannot have aliases */
+        if (short_name != NULL || long_name != NULL) {
+            return TP_ERROR_INVALID_ARGUMENT;
+        }
+    }
+
+    // Flags and options require at least one alias 
+    else if (kind == TP_ARG_FLAG || kind == TP_ARG_OPTION) {
+
+        if (short_name == NULL && long_name == NULL) {
+            return TP_ERROR_INVALID_ARGUMENT;
+        }
+
+        if (short_name != NULL && !valid_short_name(short_name)) {
+            return TP_ERROR_INVALID_ARGUMENT;
+        }
+
+        if (long_name != NULL && !valid_long_name(long_name)) {
+            return TP_ERROR_INVALID_ARGUMENT;
+        }
+    }
+
+    else {
+        return TP_ERROR_INVALID_ARGUMENT;
+    }
+
+    // Check for duplicate names or aliases 
+    if (!has_conflict(parser, name, short_name, long_name)) {
+        return TP_ERROR_DUPLICATE_ARGUMENT;
+    }
+
+    // Ensure sufficient capacity 
+    tp_status status = ensure_capacity(parser);
+
+    if (status != TP_OK) {
+        return status;
+    }
+
+    /* Get the next available argument slot */
+    tp_argument *arg = &parser->arguments[parser->argument_count];
+
+    /* Initialize the argument */
+    *arg = (tp_argument){0};
+
+    arg->kind = kind;
+
+    // Copy argument names */
+    arg->name = copy_string(name);
+    arg->short_name = copy_string(short_name);
+    arg->long_name = copy_string(long_name);
+
+    // Check for allocation failures */
+    if (arg->name == NULL ||
+        (short_name != NULL && arg->short_name == NULL) ||
+        (long_name != NULL && arg->long_name == NULL)) {
+
+        /* Free successfully allocated strings */
+        free(arg->name);
+        free(arg->short_name);
+        free(arg->long_name);
+
+        /* Reset the unused argument slot */
+        *arg = (tp_argument){0};
+
+        return TP_ERROR_OUT_OF_MEMORY;
+    }
+
+    // commit the registered argument 
+    parser->argument_count++;
+
+    return TP_OK;
+}
+
 
 tp_status tp_add_flag(){}
 
